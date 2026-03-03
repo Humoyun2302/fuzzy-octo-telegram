@@ -1,0 +1,15 @@
+Testing console logs to understand the data flow:
+
+1. When user saves profile, App.tsx handleUpdateProfile is called
+2. Profile is saved to Supabase database via backend API
+3. Profile is re-fetched from database
+4. setCurrentUser is called with fresh database values
+5. This triggers a prop change in BarberProfileEditor/CustomerProfileEditor
+6. useEffect detects prop change and updates formData state
+7. Form fields (using formData.name, formData.phone, etc.) display new values
+
+The logs will show us:
+- What database returned
+- What was set to currentUser state  
+- What the profile editor received as props
+- What formData was set to

@@ -1,0 +1,36 @@
+DIAGNOSTIC STEPS - Test in browser console:
+
+1. Login as barber
+2. Check console for: "[FETCH PROFILE] 📋 Database barber RAW DATA:"
+3. Look for these fields in the object:
+   - address
+   - location  
+   - google_maps_url
+   - working_district
+
+4. If these are NULL or missing → Problem is in DATABASE (not code)
+5. If these have values → Check next log
+
+6. Check console for: "[FETCH PROFILE] 🎯 Setting currentUser from Supabase"
+7. Check if workplaceAddress and googleMapsUrl have values
+
+8. Click Edit Profile
+9. Check console for: "[BARBER PROFILE EDITOR] 🚀 Component mounted with barber prop:"
+10. Look at fullBarberObject - does it have workplaceAddress and googleMapsUrl?
+
+11. Type something in the Address field
+12. Click Save
+13. Check console for: "📋 BarberProfileEditor: Saving profile with fields:"
+14. Verify workplaceAddress and googleMapsUrl are in this object
+
+15. Check console for: "[Barber Profile] 📋 RAW database data:"
+16. This shows what came BACK from database after save
+17. Check if address and google_maps_url are there
+
+IF THE DATA IS IN DATABASE BUT NOT SHOWING IN UI:
+- The issue is in BarberProfileEditor not using the prop correctly
+- Check formData initialization
+
+IF THE DATA IS NOT IN DATABASE:
+- The issue is in the backend save
+- Check the backend logs for the PUT request

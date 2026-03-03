@@ -1,0 +1,13 @@
+                gallery: Array.isArray(barberData.gallery) ? barberData.gallery : [],
+                interiorExteriorPhotos: (Array.isArray(barberData.gallery) ? barberData.gallery : []).map((url: string, index: number) => ({
+                  id: `image-${Date.now()}-${index}`,
+                  url,
+                  orderIndex: index
+                })),
+                working_hours: barberData.working_hours || {},
+                address: barberData.address || '',
+                workingDistrict: barberData.working_district || '',
+                priceRange: updatedProfile.services ? {
+                  min: Math.min(...updatedProfile.services.map((s: any) => s.price || 0).filter((p: number) => p > 0)),
+                  max: Math.max(...updatedProfile.services.map((s: any) => s.price || 0).filter((p: number) => p > 0))
+                } : { min: 0, max: 0 },

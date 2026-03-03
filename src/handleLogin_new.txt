@@ -1,0 +1,116 @@
+  const handleLogin = async (phone: string, password: string) => {
+     try {
+       // Call phone-only login API
+       const response = await fetch(
+         `https://${projectId}.supabase.co/functions/v1/make-server-166b98fa/auth/login`,
+         {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+             'Authorization': `Bearer ${publicAnonKey}`,
+           },
+           body: JSON.stringify({ phone: phone.replace(/\s/g, ''), password }),
+         }
+       );
+
+       const data = await response.json();
+
+       if (!response.ok) {
+         console.error("Login error:", data.error);
+         toast.error(data.error || t('auth.loginFailed'));
+         return { success: false, error: data.error };
+       }
+
+       // Store session token
+       localStorage.setItem('trimly_session_token', data.sessionToken);
+
+       // Set user data
+       const userProfile = data.profile || data.user;
+       setCurrentUser({
+         id: data.user.id,
+         role: data.user.role,
+         name: data.user.fullName || data.user.name || 'User',
+         email: data.user.phone, // Use phone as email
+         phone: data.user.phone,
+         avatar: userProfile?.avatar || '',
+         bio: userProfile?.bio || '',
+         ...userProfile
+       });
+
+       // Log subscription data from backend
+        console.log('[LOGIN] 📋 Subscription data:', { subscriptionStatus: userProfile?.subscriptionStatus, currentPlan: userProfile?.currentPlan, subscriptionExpiryDate: userProfile?.subscriptionExpiryDate, trialUsed: userProfile?.trialUsed });
+        
+       // Check for pending booking after login
+       const pendingBookingStr = localStorage.getItem('pendingBooking');
+       if (pendingBookingStr && data.user.role === 'customer') {
+         console.log('[LOGIN] Found pending booking, processing...');
+         try {
+           const pendingBooking = JSON.parse(pendingBookingStr);
+           
+           // Ensure customer row exists
+           const sessionToken = localStorage.getItem('trimly_session_token');
+           const customerResponse = await fetch(
+             `https://${projectId}.supabase.co/functions/v1/make-server-166b98fa/customers/ensure`,
+             {
+               method: 'POST',
+               headers: {
+                 'Content-Type': 'application/json',
+                 'Authorization': `Bearer ${publicAnonKey}`,
+                 'X-Session-Token': sessionToken!,
+               },
+               body: JSON.stringify({
+                 auth_user_id: data.user.id,
+                 full_name: data.user.fullName || data.user.name || 'Customer',
+                 phone: data.user.phone,
+               }),
+             }
+           );
+
+           if (!customerResponse.ok) {
+             throw new Error('Failed to ensure customer exists');
+           }
+
+           const { customer } = await customerResponse.json();
+           console.log('[LOGIN] Customer ensured:', customer.id);
+
+           // Create the booking
+           const bookingData = {
+             barberId: pendingBooking.barberId,
+             customerId: customer.id,
+             customerName: customer.full_name,
+             serviceType: pendingBooking.serviceType,
+             date: pendingBooking.booking_date,
+             startTime: pendingBooking.start_time,
+             endTime: pendingBooking.end_time,
+             duration: pendingBooking.total_duration,
+             price: pendingBooking.total_price,
+             slotId: pendingBooking.slotId,
+             source: pendingBooking.source,
+             barberName: pendingBooking.barberName,
+             barberAvatar: pendingBooking.barberAvatar,
+           };
+
+           await handleAddBooking(bookingData);
+
+           // Clear pending booking
+           localStorage.removeItem('pendingBooking');
+           localStorage.removeItem('postLoginRedirect');
+
+           toast.success(t('booking.bookingSuccess'));
+           setActiveTab('bookings');
+         } catch (error) {
+           console.error('[LOGIN] Failed to process pending booking:', error);
+           toast.error('Failed to complete booking. Please try again.');
+         }
+       } else {
+         toast.success(t('toast.welcomeBack'));
+         setActiveTab(data.user.role === 'barber' ? 'home' : 'search');
+       }
+       
+       return { success: true };
+     } catch (error: any) {
+       console.error("Login exception:", error);
+       toast.error(t('auth.loginFailed'));
+       return { success: false, error: error.message };
+     }
+  };

@@ -1,0 +1,61 @@
+# Netlify configuration for Barduck (Soniya) Barber Booking Platform
+
+[build]
+  # Build command – force clean install
+  command = "rm -f package-lock.json && npm install && npm run build"
+  # Vite outputs to "build" directory (see vite.config.ts → outDir)
+  publish = "build"
+
+# ─── Netlify Functions ───────────────────────────────────────────
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# ─── Build environment ───────────────────────────────────────────
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+# ─── Redirects / Rewrites (ORDER MATTERS — first match wins) ────
+
+# 1.  Dynamic sitemap – served by Netlify Function
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/.netlify/functions/sitemap"
+  status = 200
+  force = true
+
+# 2.  robots.txt – served from the static build output (public/)
+#     No redirect needed; Vite copies public/robots.txt → build/robots.txt
+
+# 3.  Catch-all SPA fallback – MUST be last
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# ─── Security & caching headers ─────────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=86400"

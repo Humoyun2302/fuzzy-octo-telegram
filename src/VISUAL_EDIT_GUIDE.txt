@@ -1,0 +1,68 @@
+================================================================================
+                    QUICK VISUAL GUIDE: App.tsx Edit
+================================================================================
+
+FILE: /App.tsx
+LINE: 1453 (approximately)
+
+SEARCH FOR THIS TEXT:
+----------------------
+                  description: updatedProfile.description || '',
+
+
+CURRENT CODE (lines 1452-1455):
+--------------------------------
+1452:                  bio: updatedProfile.bio || '',
+1453:                  description: updatedProfile.description || '',
+1454:                  address: updatedProfile.location || updatedProfile.workplaceAddress || '',
+1455:                  location: updatedProfile.location || updatedProfile.workplaceAddress || '',
+
+
+UPDATED CODE (with new line 1454):
+-----------------------------------
+1452:                  bio: updatedProfile.bio || '',
+1453:                  description: updatedProfile.description || '',
+1454:                  barbershopName: updatedProfile.barbershopName || '',    <-- ADD THIS LINE
+1455:                  address: updatedProfile.location || updatedProfile.workplaceAddress || '',
+1456:                  location: updatedProfile.location || updatedProfile.workplaceAddress || '',
+
+
+EXACT TEXT TO ADD:
+------------------
+                  barbershopName: updatedProfile.barbershopName || '',
+
+(Note: 18 spaces before "barbershopName")
+
+
+COPY-PASTE METHOD:
+------------------
+1. Find line 1453
+2. Copy the entire line: description: updatedProfile.description || '',
+3. Paste it on the next line
+4. Change "description" to "barbershopName" (both occurrences)
+5. Result: barbershopName: updatedProfile.barbershopName || '',
+
+
+VERIFICATION:
+-------------
+After editing, the section should look like:
+
+                body: JSON.stringify({
+                  name: updatedProfile.name || updatedProfile.fullName,
+                  fullName: updatedProfile.name || updatedProfile.fullName,
+                  phone: updatedProfile.phone,
+                  bio: updatedProfile.bio || '',
+                  description: updatedProfile.description || '',
+                  barbershopName: updatedProfile.barbershopName || '',  ← NEW
+                  address: updatedProfile.location || updatedProfile.workplaceAddress || '',
+                  location: updatedProfile.location || updatedProfile.workplaceAddress || '',
+                  googleMapsUrl: updatedProfile.googleMapsUrl || '',
+                  avatar: avatarValue || undefined,
+                  ...
+
+
+DONE!
+-----
+Save the file and the barbershop name feature is 100% complete!
+
+================================================================================

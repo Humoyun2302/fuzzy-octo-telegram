@@ -1,0 +1,10 @@
+REPLACE lines 588-599 in App.tsx with:
+
+        // Fetch fresh profile from Supabase (single source of truth)
+        const profileFetched = await fetchProfile(data.user.id, data.user.role);
+        
+        if (!profileFetched) {
+          console.error('[LOGIN] Failed to fetch profile after login');
+          toast.error('Failed to load profile');
+          return { success: false, error: 'Profile fetch failed' };
+        }
