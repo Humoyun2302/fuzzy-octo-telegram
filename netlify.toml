@@ -2,7 +2,7 @@
 
 [build]
   # Build command – force clean install
-  command = "rm -f package-lock.json && npm install && npm run build"
+  command = "rm -f package-lock.json && npm install --include=dev && chmod +x node_modules/.bin/vite || true && npm run build"
   # Vite outputs to "build" directory (see vite.config.ts → outDir)
   publish = "build"
 
